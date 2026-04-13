@@ -35,15 +35,28 @@ class SkillRecommendationActivity : AppCompatActivity() {
             startActivity(Intent(this, com.smartcampus.app.ui.jobs.ExternalJobsActivity::class.java))
         }
 
-        loadRecommendations()
-        loadTrending()
+        loadCompletedRoadmaps()
     }
 
-    private fun loadRecommendations() {
+    private fun loadCompletedRoadmaps() {
+        ApiClient.getApi().getCompletedRoadmaps(session.authToken).enqueue(object : Callback<List<String>> {
+            override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
+                val completed = if (response.isSuccessful) response.body() ?: emptyList() else emptyList()
+                loadRecommendations(completed)
+                loadTrending(completed)
+            }
+            override fun onFailure(call: Call<List<String>>, t: Throwable) {
+                loadRecommendations(emptyList())
+                loadTrending(emptyList())
+            }
+        })
+    }
+
+    private fun loadRecommendations(completedSkills: List<String>) {
         ApiClient.getApi().getPersonalizedRecommendations(session.authToken).enqueue(object : Callback<List<SkillRecommendation>> {
             override fun onResponse(call: Call<List<SkillRecommendation>>, response: Response<List<SkillRecommendation>>) {
                 if (response.isSuccessful && response.body() != null) {
-                    displaySkills(response.body()!!, findViewById(R.id.layoutRecommended))
+                    displaySkills(response.body()!!, findViewById(R.id.layoutRecommended), completedSkills)
                 }
             }
             override fun onFailure(call: Call<List<SkillRecommendation>>, t: Throwable) {
@@ -52,24 +65,37 @@ class SkillRecommendationActivity : AppCompatActivity() {
         })
     }
 
-    private fun loadTrending() {
+    private fun loadTrending(completedSkills: List<String>) {
         ApiClient.getApi().getTrendingSkills(session.authToken).enqueue(object : Callback<List<SkillRecommendation>> {
             override fun onResponse(call: Call<List<SkillRecommendation>>, response: Response<List<SkillRecommendation>>) {
                 if (response.isSuccessful && response.body() != null) {
-                    displaySkills(response.body()!!, findViewById(R.id.layoutTrending))
+                    displaySkills(response.body()!!, findViewById(R.id.layoutTrending), completedSkills)
                 }
             }
             override fun onFailure(call: Call<List<SkillRecommendation>>, t: Throwable) {}
         })
     }
 
-    private fun displaySkills(skills: List<SkillRecommendation>, container: LinearLayout) {
+    private fun displaySkills(skills: List<SkillRecommendation>, container: LinearLayout, completedSkills: List<String>) {
         container.removeAllViews()
         skills.forEach { skill ->
             val card = LayoutInflater.from(this).inflate(R.layout.item_skill_recommendation, container, false)
-            card.findViewById<TextView>(R.id.tvSkillName).text = skill.skillName
-            card.findViewById<TextView>(R.id.tvDemandScore).text = "${skill.demandScore.toInt()}% demand"
-            card.findViewById<LinearProgressIndicator>(R.id.progressDemand).progress = skill.demandScore.toInt()
+            
+            val isCompleted = completedSkills.any { it.equals(skill.skillName, ignoreCase = true) }
+            val tvSkillName = card.findViewById<TextView>(R.id.tvSkillName)
+            tvSkillName.text = skill.skillName
+            
+            if (isCompleted) {
+                tvSkillName.paintFlags = tvSkillName.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+                card.findViewById<TextView>(R.id.tvDemandScore).text = "${skill.demandScore.toInt()}% demand (Completed ✔)"
+                val progress = card.findViewById<LinearProgressIndicator>(R.id.progressDemand)
+                progress.progress = skill.demandScore.toInt()
+                progress.setIndicatorColor(resources.getColor(R.color.success, null))
+            } else {
+                card.findViewById<TextView>(R.id.tvDemandScore).text = "${skill.demandScore.toInt()}% demand"
+                card.findViewById<LinearProgressIndicator>(R.id.progressDemand).progress = skill.demandScore.toInt()
+            }
+            
             card.findViewById<TextView>(R.id.tvReason).text = skill.reason ?: skill.region ?: ""
             
             card.setOnClickListener {

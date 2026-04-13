@@ -81,9 +81,12 @@ id etSearch
 id etSemester
 id etSkills
 id etSummary
+id ivExpandIndicator
 id ivNotifications
 id layoutCertifications
 id layoutContent
+id layoutExpandableContent
+id layoutHeader
 id layoutInternships
 id layoutJobs
 id layoutProjects

@@ -3450,6 +3450,7 @@ int id invisible 0x7f080110
 int id inward 0x7f080111
 int id italic 0x7f080112
 int id item_touch_helper_previous_elevation 0x7f080113
+int id ivExpandIndicator 0x7f08025d
 int id ivNotifications 0x7f080114
 int id jumpToEnd 0x7f080115
 int id jumpToStart 0x7f080116
@@ -3457,6 +3458,8 @@ int id labeled 0x7f080117
 int id layout 0x7f080118
 int id layoutCertifications 0x7f080119
 int id layoutContent 0x7f08011a
+int id layoutExpandableContent 0x7f08025e
+int id layoutHeader 0x7f08025f
 int id layoutInternships 0x7f08011b
 int id layoutJobs 0x7f08011c
 int id layoutProjects 0x7f08011d

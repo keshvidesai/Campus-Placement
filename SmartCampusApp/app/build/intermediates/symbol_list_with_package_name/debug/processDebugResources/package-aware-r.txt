@@ -3451,6 +3451,7 @@ id invisible
 id inward
 id italic
 id item_touch_helper_previous_elevation
+id ivExpandIndicator
 id ivNotifications
 id jumpToEnd
 id jumpToStart
@@ -3458,6 +3459,8 @@ id labeled
 id layout
 id layoutCertifications
 id layoutContent
+id layoutExpandableContent
+id layoutHeader
 id layoutInternships
 id layoutJobs
 id layoutProjects

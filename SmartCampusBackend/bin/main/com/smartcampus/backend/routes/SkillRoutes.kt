@@ -151,6 +151,33 @@ fun Route.skillRoutes() {
                     call.respond(HttpStatusCode.BadRequest, MessageResponse(e.message ?: "Error", false))
                 }
             }
+
+            // Get all completed roadmaps for user
+            get("/completed-roadmaps") {
+                try {
+                    val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("userId").asInt()
+                    val completedSkills = mutableListOf<String>()
+                    
+                    transaction {
+                        val userProgress = RoadmapProgress.select { RoadmapProgress.userId eq userId }
+                            .map { it[RoadmapProgress.skillName] to it[RoadmapProgress.stepName] }
+                            .groupBy({ it.first }, { it.second })
+                            
+                        for ((skill, completedSteps) in userProgress) {
+                            val roadmap = RoadmapService.getRoadmap(skill)
+                            if (roadmap != null) {
+                                val totalSteps = roadmap.phases.flatMap { it.steps }.size
+                                if (completedSteps.size >= totalSteps) {
+                                    completedSkills.add(skill)
+                                }
+                            }
+                        }
+                    }
+                    call.respond(HttpStatusCode.OK, completedSkills)
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.BadRequest, MessageResponse(e.message ?: "Error", false))
+                }
+            }
         }
     }
 }

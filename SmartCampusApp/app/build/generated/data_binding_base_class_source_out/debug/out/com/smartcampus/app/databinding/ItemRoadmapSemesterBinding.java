@@ -4,6 +4,7 @@ package com.smartcampus.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -25,7 +26,16 @@ public final class ItemRoadmapSemesterBinding implements ViewBinding {
   public final ChipGroup cgSkills;
 
   @NonNull
+  public final ImageView ivExpandIndicator;
+
+  @NonNull
   public final LinearLayout layoutCertifications;
+
+  @NonNull
+  public final LinearLayout layoutExpandableContent;
+
+  @NonNull
+  public final LinearLayout layoutHeader;
 
   @NonNull
   public final LinearLayout layoutInternships;
@@ -40,12 +50,17 @@ public final class ItemRoadmapSemesterBinding implements ViewBinding {
   public final TextView tvSemesterTitle;
 
   private ItemRoadmapSemesterBinding(@NonNull MaterialCardView rootView,
-      @NonNull ChipGroup cgSkills, @NonNull LinearLayout layoutCertifications,
-      @NonNull LinearLayout layoutInternships, @NonNull TextView tvCertifications,
-      @NonNull TextView tvInternships, @NonNull TextView tvSemesterTitle) {
+      @NonNull ChipGroup cgSkills, @NonNull ImageView ivExpandIndicator,
+      @NonNull LinearLayout layoutCertifications, @NonNull LinearLayout layoutExpandableContent,
+      @NonNull LinearLayout layoutHeader, @NonNull LinearLayout layoutInternships,
+      @NonNull TextView tvCertifications, @NonNull TextView tvInternships,
+      @NonNull TextView tvSemesterTitle) {
     this.rootView = rootView;
     this.cgSkills = cgSkills;
+    this.ivExpandIndicator = ivExpandIndicator;
     this.layoutCertifications = layoutCertifications;
+    this.layoutExpandableContent = layoutExpandableContent;
+    this.layoutHeader = layoutHeader;
     this.layoutInternships = layoutInternships;
     this.tvCertifications = tvCertifications;
     this.tvInternships = tvInternships;
@@ -85,9 +100,27 @@ public final class ItemRoadmapSemesterBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.ivExpandIndicator;
+      ImageView ivExpandIndicator = ViewBindings.findChildViewById(rootView, id);
+      if (ivExpandIndicator == null) {
+        break missingId;
+      }
+
       id = R.id.layoutCertifications;
       LinearLayout layoutCertifications = ViewBindings.findChildViewById(rootView, id);
       if (layoutCertifications == null) {
+        break missingId;
+      }
+
+      id = R.id.layoutExpandableContent;
+      LinearLayout layoutExpandableContent = ViewBindings.findChildViewById(rootView, id);
+      if (layoutExpandableContent == null) {
+        break missingId;
+      }
+
+      id = R.id.layoutHeader;
+      LinearLayout layoutHeader = ViewBindings.findChildViewById(rootView, id);
+      if (layoutHeader == null) {
         break missingId;
       }
 
@@ -116,8 +149,8 @@ public final class ItemRoadmapSemesterBinding implements ViewBinding {
       }
 
       return new ItemRoadmapSemesterBinding((MaterialCardView) rootView, cgSkills,
-          layoutCertifications, layoutInternships, tvCertifications, tvInternships,
-          tvSemesterTitle);
+          ivExpandIndicator, layoutCertifications, layoutExpandableContent, layoutHeader,
+          layoutInternships, tvCertifications, tvInternships, tvSemesterTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

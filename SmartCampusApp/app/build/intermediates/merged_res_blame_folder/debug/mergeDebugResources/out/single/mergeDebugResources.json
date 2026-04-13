@@ -4,12 +4,16 @@
         "source": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-main-57:\\drawable\\ic_launcher_background.xml"
     },
     {
-        "merged": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-debug-55:\\layout_activity_skill_roadmap.xml.flat",
-        "source": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-main-57:\\layout\\activity_skill_roadmap.xml"
+        "merged": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-debug-55:\\layout_item_roadmap_semester.xml.flat",
+        "source": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-main-57:\\layout\\item_roadmap_semester.xml"
     },
     {
         "merged": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-debug-55:\\layout_activity_profile.xml.flat",
         "source": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-main-57:\\layout\\activity_profile.xml"
+    },
+    {
+        "merged": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-debug-55:\\layout_activity_skill_roadmap.xml.flat",
+        "source": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-main-57:\\layout\\activity_skill_roadmap.xml"
     },
     {
         "merged": "C:\\Users\\aruns\\.gradle\\daemon\\8.9\\com.smartcampus.app-debug-55:\\drawable_ic_location.xml.flat",

@@ -26,10 +26,22 @@ class CareerRoadmapActivity : AppCompatActivity() {
         setContentView(R.layout.activity_generic)
         session = SessionManager(this)
         findViewById<TextView>(R.id.tvPageTitle).text = "Career Roadmap"
-        loadRoadmap()
+        loadCompletedRoadmaps()
     }
 
-    private fun loadRoadmap() {
+    private fun loadCompletedRoadmaps() {
+        ApiClient.getApi().getCompletedRoadmaps(session.authToken).enqueue(object : Callback<List<String>> {
+            override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
+                val completed = if (response.isSuccessful) response.body() ?: emptyList() else emptyList()
+                loadRoadmap(completed)
+            }
+            override fun onFailure(call: Call<List<String>>, t: Throwable) {
+                loadRoadmap(emptyList())
+            }
+        })
+    }
+
+    private fun loadRoadmap(completedSkills: List<String>) {
         ApiClient.getApi().getCareerRoadmap(session.authToken).enqueue(object : Callback<List<JsonObject>> {
             override fun onResponse(call: Call<List<JsonObject>>, response: Response<List<JsonObject>>) {
                 if (response.isSuccessful && response.body() != null) {
@@ -41,6 +53,18 @@ class CareerRoadmapActivity : AppCompatActivity() {
                             .inflate(R.layout.item_roadmap_semester, container, false)
                         
                         val tvSemesterTitle = view.findViewById<TextView>(R.id.tvSemesterTitle)
+                        val layoutHeader = view.findViewById<LinearLayout>(R.id.layoutHeader)
+                        val ivExpandIndicator = view.findViewById<android.widget.ImageView>(R.id.ivExpandIndicator)
+                        val layoutExpandableContent = view.findViewById<LinearLayout>(R.id.layoutExpandableContent)
+
+                        var isExpanded = false // Collapsed by default
+                        layoutHeader.setOnClickListener {
+                            isExpanded = !isExpanded
+                            layoutExpandableContent.visibility = if (isExpanded) android.view.View.VISIBLE else android.view.View.GONE
+                            ivExpandIndicator.setImageResource(
+                                if (isExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
+                            )
+                        }
                         val cgSkills = view.findViewById<ChipGroup>(R.id.cgSkills)
                         val tvInternships = view.findViewById<TextView>(R.id.tvInternships)
                         val tvCertifications = view.findViewById<TextView>(R.id.tvCertifications)
@@ -54,9 +78,26 @@ class CareerRoadmapActivity : AppCompatActivity() {
                                 val skill = skillsArray.get(i).asString
                                 val chip = Chip(this@CareerRoadmapActivity).apply {
                                     text = skill
-                                    setChipBackgroundColorResource(R.color.bg_card_light)
-                                    setTextColor(resources.getColor(R.color.accent, null))
+                                    val isCompleted = completedSkills.any { it.equals(skill, ignoreCase = true) }
+                                    
+                                    if (isCompleted) {
+                                        setChipBackgroundColorResource(R.color.success)
+                                        setTextColor(resources.getColor(R.color.bg_dark, null))
+                                        paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+                                    } else {
+                                        setChipBackgroundColorResource(R.color.bg_card_light)
+                                        setTextColor(resources.getColor(R.color.accent, null))
+                                    }
+                                    
                                     setEnsureMinTouchTargetSize(false) // Tighter chip spacing
+                                    
+                                    // Navigate to specific skill roadmap on click
+                                    isClickable = true
+                                    setOnClickListener {
+                                        val intent = android.content.Intent(this@CareerRoadmapActivity, SkillRoadmapActivity::class.java)
+                                        intent.putExtra("SKILL_NAME", skill)
+                                        startActivity(intent)
+                                    }
                                 }
                                 cgSkills.addView(chip)
                             }

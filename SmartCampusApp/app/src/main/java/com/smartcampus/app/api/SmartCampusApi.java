@@ -73,6 +73,9 @@ public interface SmartCampusApi {
         Call<JsonObject> saveRoadmapProgress(@Header("Authorization") String token, @Path("skill") String skill,
                         @Body JsonObject body);
 
+        @GET("skills/completed-roadmaps")
+        Call<List<String>> getCompletedRoadmaps(@Header("Authorization") String token);
+
         // ========== JOBS ==========
         @GET("jobs")
         Call<List<Job>> getJobs(
