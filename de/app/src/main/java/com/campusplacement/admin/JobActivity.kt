@@ -1,0 +1,137 @@
+package com.campusplacement.admin
+
+import android.os.Bundle
+import android.text.InputType
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.campusplacement.admin.databinding.ActivityJobListBinding
+import com.campusplacement.admin.models.Job
+import com.campusplacement.admin.services.AdminService
+
+class JobActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityJobListBinding
+    private lateinit var adminService: AdminService
+    private lateinit var adapter: JobAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityJobListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        adminService = AdminService()
+        
+        binding.toolbar.setNavigationOnClickListener { finish() }
+
+        adapter = JobAdapter(
+            jobs = adminService.viewAllJobs(),
+            onEdit = { job -> showJobDialog(job) },
+            onDelete = { job -> 
+                adminService.deleteJob(job.id)
+                refreshList()
+            }
+        )
+
+        binding.recyclerViewJobs.layoutManager = LinearLayoutManager(this)
+        binding.recyclerViewJobs.adapter = adapter
+
+        binding.fabAddJob.setOnClickListener {
+            showJobDialog(null)
+        }
+    }
+
+    private fun refreshList() {
+        adapter.jobs = adminService.viewAllJobs()
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun showJobDialog(job: Job?) {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 10)
+        }
+        val titleInput = EditText(this).apply {
+            hint = "Job Title"
+            setText(job?.title ?: "")
+        }
+        val companyInput = EditText(this).apply {
+            hint = "Company Name"
+            setText(job?.companyName ?: "")
+        }
+        val locationInput = EditText(this).apply {
+            hint = "Location"
+            setText(job?.location ?: "")
+        }
+        val salaryInput = EditText(this).apply {
+            hint = "Salary Package"
+            setText(job?.salaryPackage ?: "")
+        }
+        layout.addView(titleInput)
+        layout.addView(companyInput)
+        layout.addView(locationInput)
+        layout.addView(salaryInput)
+
+        AlertDialog.Builder(this)
+            .setTitle(if (job == null) "Add Job" else "Edit Job")
+            .setView(layout)
+            .setPositiveButton("Save") { _, _ ->
+                val title = titleInput.text.toString()
+                val company = companyInput.text.toString()
+                val location = locationInput.text.toString()
+                val salary = salaryInput.text.toString()
+                
+                if (title.isNotBlank() && company.isNotBlank() && location.isNotBlank() && salary.isNotBlank()) {
+                    if (job == null) {
+                        adminService.addJob(title, company, location, salary)
+                    } else {
+                        adminService.updateJob(job.id, title, company, location, salary)
+                    }
+                    refreshList()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+}
+
+class JobAdapter(
+    var jobs: List<Job>,
+    private val onEdit: (Job) -> Unit,
+    private val onDelete: (Job) -> Unit
+) : RecyclerView.Adapter<JobAdapter.ViewHolder>() {
+
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
+        val tvSubtitle: TextView = view.findViewById(R.id.tvSubtitle)
+        val tvDescription: TextView = view.findViewById(R.id.tvDescription)
+        val btnEdit: ImageButton = view.findViewById(R.id.btnEdit)
+        val btnDelete: ImageButton = view.findViewById(R.id.btnDelete)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_entity_card, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val job = jobs[position]
+        holder.tvTitle.text = job.title
+        holder.tvSubtitle.text = job.companyName
+        holder.tvDescription.text = "Location: ${job.location} | CTC: ${job.salaryPackage}"
+        holder.tvDescription.visibility = View.VISIBLE
+
+        holder.btnEdit.setOnClickListener { onEdit(job) }
+        holder.btnDelete.setOnClickListener { onDelete(job) }
+    }
+
+    override fun getItemCount() = jobs.size
+}
